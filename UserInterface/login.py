@@ -1,14 +1,20 @@
+#!/usr/bin/env python3
+
 '''initial program to application developer to check login and upload algorithms
 author : rbachina
 date : 14 mar 2021
 purpose : team hackathon
 '''
-#!/usr/bin/python3
 import os
 import pymongo as pm
 from pymongo import *
 from subprocess import call
+from bson.objectid import ObjectId
 
+
+client = MongoClient("mongodb+srv://admin:admin123@cluster0.ze4na.mongodb.net")
+db = client['IOT']
+userTable = db['user_details']
 
 
 def __copy_alg_to_repo__(destinationDir):
@@ -18,37 +24,42 @@ def __copy_alg_to_repo__(destinationDir):
     print("Algorithm is hosted now")
     __app_dev_operations__()
 
+
 def __list_all_alg__(algRepPath):
     __repo_exist__(algRepPath)
     my_algorithms = os.listdir(algRepPath)
     print(my_algorithms)
 
+
 def __delete_alg__(dirNameWithFullPath):
-    try: 
-        os.rmdir(dirNameWithFullPath) 
-        print("algorithm removed successfully") 
-    except OSError as error: 
-        print(error) 
-        print("Error deleting the algorithm") 
+    try:
+        os.rmdir(dirNameWithFullPath)
+        print("algorithm removed successfully")
+    except OSError as error:
+        print(error)
+        print("Error deleting the algorithm")
+
 
 def __repo_exist__(algRepPath):
     isExist = os.path.exists(algRepPath)
-    if not isExist: 
+    if not isExist:
         print("creating dir now")
         os.makedirs(algRepPath)
+
 
 def __upload_algorithm__(algRepPath):
     __repo_exist__(algRepPath)
     __copy_alg_to_repo__(algRepPath)
 
-def __newUser_registration__(userName,name,password):
-    client = MongoClient("mongodb+srv://admin:admin123@cluster0.ze4na.mongodb.net/myFirstDatabase")
-    db = client['IOT']
-    TexDB = db['user_details']
-    mydict = {'userid':userName, 'name': name, 'password': password}
-    x = TexDB.insert_one(mydict)
-    print(x)
 
+def __newUser_registration__(userName, name, password):
+    x = userTable.find({"_id": userName})
+    if x is not None:
+        print('Username already exists')
+        return
+    mydict = {'_id': userName, 'name': name, 'password': password}
+    x = userTable.insert_one(mydict)
+    print(x)
 
 
 def __app_dev_operations__():
@@ -57,44 +68,51 @@ def __app_dev_operations__():
     print('Select "3" delete algorithms from repo \n')
     print('Select "4" to logout and exit \n')
     devChoice = input("Choice: ")
-    homePath=os.environ['HOME']
-    algRepPath=homePath+"/AlgorithmRepo"
-    if devChoice=="1":
+    homePath = os.environ['HOME']
+    algRepPath = homePath+"/AlgorithmRepo"
+    if devChoice == "1":
         __upload_algorithm__(algRepPath)
-    elif devChoice=="2":
+    elif devChoice == "2":
         __list_all_alg__(algRepPath)
         __app_dev_operations__()
-    elif devChoice=="3":
+    elif devChoice == "3":
         __list_all_alg__(algRepPath)
         deleteDirName = input("Enter Dir Name: ")
         dirNameWithFullPath = algRepPath+'/'+deleteDirName
         __delete_alg__(dirNameWithFullPath)
         __list_all_alg__(algRepPath)
         __app_dev_operations__()
-    elif devChoice=="4":
+    elif devChoice == "4":
         exit()
     else:
         print("please select appropriate choice")
         __app_dev_operations__()
-        
+
 
 def registration():
     userName = input("Enter Username: ")
     name = input("Enter Full Name: ")
     password = input("Enter Password: ")
-    print(userName +"\n" + name + "\n" + password)
-    __newUser_registration__(userName,name,password)
+    print(userName + "\n" + name + "\n" + password)
+    __newUser_registration__(userName, name, password)
     print("registration successful")
     print("Now please login with your credentials \n")
     login()
 
+
 def login():
     userName = input("Enter Username: ")
     password = input("Enter password: ")
-    print("hello")
-    '''incae login is correct then'''
-    __app_dev_operations__()
-
+    # print("hello")
+    x = userTable.find({"_id": userName})
+    if x is None:
+        print('User does not exist')
+    else:
+        x = x[0]
+    if x['password'] != password:
+        print('User does not exist/Incorrect password')
+    else:
+        __app_dev_operations__()
 
 
 def main():
@@ -105,15 +123,15 @@ def main():
     print('Select "3" to exit')
     userChoice = input("Choice: ")
 
-    if userChoice=="1":
+    if userChoice == "1":
         registration()
-    elif userChoice=="2":
+    elif userChoice == "2":
         login()
-    elif userChoice=="3":
+    elif userChoice == "3":
         exit()
     else:
         print("please select appropriate choice")
 
-if __name__=="__main__":
-    main()
 
+if __name__ == "__main__":
+    main()
