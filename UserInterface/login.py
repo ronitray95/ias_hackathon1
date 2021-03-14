@@ -5,8 +5,8 @@ purpose : team hackathon
 '''
 #!/usr/bin/python3
 import os
-import pymongo as pm
-from pymongo import *
+import pymongo
+from pymongo import MongoClient
 from subprocess import call
 
 
@@ -48,6 +48,21 @@ def __newUser_registration__(userName,name,password):
     mydict = {'userid':userName, 'name': name, 'password': password}
     x = TexDB.insert_one(mydict)
     print(x)
+
+def __validation__(userName,password):
+    client = MongoClient("mongodb+srv://admin:admin123@cluster0.ze4na.mongodb.net/myFirstDatabase")
+    db = client['IOT']
+    UserDB = db['user_details']
+    
+    for x in UserDB.find( {'userid': userName, 'password': password } ):
+        print(x)
+    
+    if x['password'] != password:
+        print("please enter proper credentials, userid/password wrong")
+        login()
+    else:
+        print("login successful")
+        __app_dev_operations__()
 
 
 
@@ -91,9 +106,7 @@ def registration():
 def login():
     userName = input("Enter Username: ")
     password = input("Enter password: ")
-    print("hello")
-    '''incae login is correct then'''
-    __app_dev_operations__()
+    __validation__(userName,password)
 
 
 
