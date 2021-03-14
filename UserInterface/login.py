@@ -28,7 +28,11 @@ def __copy_alg_to_repo__(destinationDir):
 def __list_all_alg__(algRepPath):
     __repo_exist__(algRepPath)
     my_algorithms = os.listdir(algRepPath)
-    print(my_algorithms)
+    i=0
+    print("*******List of algorithsm*******")
+    for alg in my_algorithms:
+        i=i+1
+        print("algorithm"+str(i)+": "+alg)
 
 
 def __delete_alg__(dirNameWithFullPath):
@@ -51,12 +55,13 @@ def __upload_algorithm__(algRepPath):
     __repo_exist__(algRepPath)
     __copy_alg_to_repo__(algRepPath)
 
-def __validation__(userName,password):
+
+def __validation__(userName,password): 
     
-    for x in UserDB.find( {'userid': userName, 'password': password } ):
+    for x in userTable.find( {'userid': userName, 'password': password } ):
         print(x)
     
-    if x['password'] != password:
+    if x.get('password',None) != password:
         print("please enter proper credentials, userid/password wrong")
         login()
     else:
