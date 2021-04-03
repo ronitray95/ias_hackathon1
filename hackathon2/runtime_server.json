@@ -1,27 +1,35 @@
 {
   
-	"server1": {
-		"id":1,
-		"ip": "127.0.0.1",
-		"port": 5010,
-		"active": 0,
-		"health": 1
-		},
-
-	"server2": {
-		"id":2,
-		"ip": "127.0.0.1",
-		"port": 5011,
-		"active": 0,
-		"health": 1
-		},
-
-	"server3": {
-		"id":3,
-		"ip": "127.0.0.1",
-		"port": 5012,
-		"active": 0,
-		"health": 1
-		}
-  
+    "servers":[
+        {
+	        "id":"server1",
+		    "ip": "127.0.0.1",
+		    "port": 5010,
+		    "active": 0,
+            "health": 1,
+            "applications":0,
+            "username":"rbachina",
+            "password":"Welcome#123"
+        },
+        {
+            "id":"server2",
+            "ip": "127.0.0.1",
+            "port": 5011,
+            "active": 0,
+            "health": 1,
+            "applications":0,
+            "username":"rbachina",
+            "password":"Welcome#123"
+        },
+        {
+            "id":"server3",
+            "ip": "127.0.0.1",
+            "port": 5012,
+            "active": 0,
+            "health": 1,
+            "applications":0,
+            "username":"rbachina",
+            "password":"Welcome#123"
+        }
+    ] 
 }
