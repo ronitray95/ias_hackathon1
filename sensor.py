@@ -19,7 +19,7 @@ class Sensor:
         self.listenSocket = socket.socket()
         self.low = 5
         self.high = 500
-        self.delay = 3
+        self.delay = 1
 
         try:
             self.listenSocket.bind((ip, port))

@@ -14,15 +14,20 @@ with open('sensor_repo.json') as f:
 
 app = Flask(__name__)
 registered_sensors = []
+INIT_STATE = False
 
 
 @app.route('/')
 def init_sensors():
+    global INIT_STATE
+    if INIT_STATE:
+        return 'Success', 200
     for s in sensor_list:
         si = Sensor(s['id'], s['type'], s['name'],
                     s['ip'], s['port'], s['location'])
         #start_new_thread(si.main, (random.randint(1, 10)))
         registered_sensors.append(si)
+    INIT_STATE = True
     return 'Success', 200
 
 
@@ -46,9 +51,9 @@ def fetchSensorData():
     s.send('RECV'.encode('utf-8'))
     data = s.recv(100)
     data = data.decode('utf-8')
-    data = data.split(' ')[0]
+    #data = data.split(' ')[0]
     s.close()
-    return data, 200
+    return {'low': data, 'high': data}, 200
 
 
 @app.route('/modify')
@@ -79,9 +84,9 @@ def modifySensorData():
     s.send(f'MOD {l} {h}'.encode('utf-8'))
     data = s.recv(100)
     data = data.decode('utf-8')
-    data = data.split(' ')[0]
+    #data = data.split(' ')[0]
     s.close()
-    return data, 200
+    return {'status': data}, 200
 
 
 if __name__ == '__main__':
