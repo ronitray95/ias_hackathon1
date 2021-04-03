@@ -1,17 +1,18 @@
 import _thread
-#import loadBalancer
-#import appServer
+import requests
+import json
+from kafka import KafkaConsumer
 
 jobID = {}
 
-def appExe(data_from_schedular):
+def appExe(action, ID, appLoc, configLoc):
     global jobID
-    data = json.loads(data_from_schedular)
-    id = data["id"]
-    action = data["action"]    
+
     if action == 'start':
-        #ip, port = loadBalancer.getServer()
-        #get ip, port here
+        add = requests.get("localhost:4999/servermanager/assign_runtime_server/")
+        add = add.json()
+        ip = add["host"]
+        port = add["port"]
         jobID[id] = [ip, port]
         #appServer("start", id, ip, port)
         #communicate with server passing action as an arg
@@ -20,8 +21,13 @@ def appExe(data_from_schedular):
         #appServer("end", id)
         pass
 def main():
-    #loop
-    #read from schedular continuosly
-    _thread.start_new_thread(appExe,(data_from_schedular,))
     
-appExe(data_from_schedular)
+    consumer = KafkaConsumer('schedular',bootstrap_servers=['localhost:9092'],auto_offset_reset='latest',enable_auto_commit=True,value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+    for message in consumer:
+        action = message.value["action"]
+        ID = message.value["jobID"]
+        appLoc = message.value["appLoc"]
+        configLoc = message.value["configLoc"]
+        _thread.start_new_thread(appExe,(action, ID, appLoc, configLoc,))
+
+main()
