@@ -1,6 +1,6 @@
-import time
 import sys
 from commAPI import obj
+import json
 
 class sensorapi(object):
 
@@ -28,10 +28,11 @@ class sensorapi(object):
                 self.controller[i] = cinstances[i]
 
     def getData(self, sensor):
-        obj.getData("topic")
-
+        return obj.getData(sensor, self.sensor[sensor])
+        
     def setData(self, controller, value):
-        obj.setData("topic")
+        return obj.setData(controller, self.controller[controller], value)
+        
     def addSensorType(sensor):
         pass
     def removeSensorType(sensor):
@@ -40,5 +41,5 @@ class sensorapi(object):
         pass
     def removeControllerType(sensor):
         pass
-    def sendNotification():
-        obj.sendNotification("topic")
+    def sendNotification(self, msg):
+        obj.sendNotification(msg)
