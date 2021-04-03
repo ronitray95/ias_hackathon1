@@ -28,10 +28,10 @@ def __copy_alg_to_repo__(destinationDir):
 def __list_all_alg__(algRepPath):
     __repo_exist__(algRepPath)
     my_algorithms = os.listdir(algRepPath)
-    i=0
+    i = 0
     print("*******List of algorithsm*******")
     for alg in my_algorithms:
-        i=i+1
+        i = i+1
         print("algorithm"+str(i)+": "+alg)
 
 
@@ -56,17 +56,18 @@ def __upload_algorithm__(algRepPath):
     __copy_alg_to_repo__(algRepPath)
 
 
-def __validation__(userName,password): 
-    
-    for x in userTable.find( {'userid': userName, 'password': password } ):
+def __validation__(userName, password):
+
+    for x in userTable.find({'userid': userName, 'password': password}):
         print(x)
-    
-    if x.get('password',None) != password:
+
+    if x.get('password', None) != password:
         print("please enter proper credentials, userid/password wrong")
         login()
     else:
         print("login successful")
         __app_dev_operations__()
+
 
 def __newUser_registration__(userName, name, password):
     x = userTable.find({"_id": userName})
@@ -120,8 +121,9 @@ def login():
     userName = input("Enter Username: ")
     password = input("Enter password: ")
 
-    __validation__(userName,password)
+    __validation__(userName, password)
     __app_dev_operations__()
+
 
 def main():
     print('****************Welcome to IOT Platform****************')
