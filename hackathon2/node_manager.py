@@ -42,6 +42,7 @@ def init_servers():
         producer.send(KAFKA_TOPIC_SERVER_LIST, json.dumps(x))
 
         start_new_thread(app.run, (x['ip'], x['port']))
+    subprocess.Popen([sys.executable, 'health_probe_service.py'])
     input()
 
 
