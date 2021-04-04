@@ -31,15 +31,15 @@ producer = KafkaProducer(bootstrap_servers=[
 def init_servers():
     for x in server_list:
         #app = Flask(__name__)
-        print(json.dumps(x))
+        # print(json.dumps(x))
+        print(x['ip'], x['port'])
         server_load[x['id']] = (
             Server(x['id'], x['ip'], x['port'], x['active'], x['health'], x['applications'], x['username'], x['password']))
         last_port = x['port']
         producer.send(KAFKA_TOPIC_SERVER_LIST, json.dumps(x))
 
-        start_new_thread(app.run, (x['ip'], x['port'], True))
+        start_new_thread(app.run, (x['ip'], x['port']))
     input()
-
 
 def createNodeServer():
     global last_port
@@ -107,7 +107,7 @@ def runApplication():
 
 
 @app.route('/stopapp')
-def runApplication():
+def stopApplication():
     if request.method == 'POST':
         return 'Not supported', 401
     app_id = request.args.get('app_id')
@@ -121,8 +121,10 @@ def runApplication():
         if ap.app_id == app_id and ap.user_id == user_id:
             apps_load.pop(i)
             return {'msg': 'Success'}, 200
-	return {'msg': 'App ID not found'}, 401
+    return {'msg': 'App ID not found'}, 401
 
+
+init_servers()
 # if __name__ == '__main__':
 #     init_servers()
 #     app.run(debug=True)

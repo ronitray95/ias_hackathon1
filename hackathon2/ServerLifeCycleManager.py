@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from flask import Flask, jsonify, request, Response, json
 import threading
 import paramiko
@@ -7,12 +9,12 @@ from kafka import KafkaConsumer, KafkaProducer
 from time import sleep
 from json import dumps, loads
 
-import node_manager as nm
+#import node_manager as nm
 from models import *
 
 # app = Flask(__name__)
 # app.config["DEBUG"] = True
-
+last_port=0
 
 producer = KafkaProducer(bootstrap_servers=[
                          'localhost:9092'], value_serializer=lambda x: dumps(x).encode('utf-8'))
@@ -89,9 +91,10 @@ def deploy_here_loadbalancer():
         elif(server[1]['applications'] <= 2 and server[1]['idle_cpu'] > 30 and server[1]['used_mem'] < 80):
             return server[1]['host'], server[1]['port']
     if(create_new):
-        nm.createNodeServer()
+        #nm.createNodeServer()
         return deploy_here_loadbalancer()
         # print("#call ronit function to create server")
+
 
 
 def running_runtime():
@@ -99,9 +102,12 @@ def running_runtime():
     return_status = dict()
     return_status["host"] = ip
     return_status["port"] = port
+    print(return_status)
     producer.send(KAFKA_TOPIC_NODE_SERVER_ASSIGN_LIST,
                   json.dumps(return_status))
     # return return_status
+
+#running_runtime() <------------- JUST CALL THIS FUNCTION FROM YOUR MODULE
 
 # @app.route("/servermanager/assign_runtime_server/")
 # def running_runtime():
