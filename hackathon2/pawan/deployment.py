@@ -5,29 +5,41 @@ from kafka import KafkaConsumer
 
 jobID = {}
 
-def appExe(action, ID, appLoc, configLoc):
+def appExe(action, jID, aID, uID, RAM, CPU, appPath, algoPath, configPath):
     global jobID
 
     if action == 'start':
-        add = requests.get("localhost:4999/servermanager/assign_runtime_server/")
-        add = add.json()
-        ip = add["host"]
-        port = add["port"]
-        jobID[id] = [ip, port]
-        #appServer("start", id, ip, port)
-        #communicate with server passing action as an arg
+        ip =""
+        port = ""
+        consumer = KafkaConsumer('node-server-assign',bootstrap_servers=['localhost:9092'],auto_offset_reset='latest',enable_auto_commit=True,value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+        for message in consumer:
+            ip = message.value["host"]
+            port = message.value["port"]
+            break 
+        
+        jobID[jID] = [ip, port]
+        status = requests.get(ip+':'+port+'/runapp', params={'app_id': aID, 'user_id':uID, 'ram_req':RAM, 'cpu_req':CPU, 'app_path':appPath, 'algo_path':algoPath, 'config_path':configPath})
+        if status:
+            #return status to schedular
+            pass
+
     else:
-        #communication with server using ip/port of jobID[id] along with action
-        #appServer("end", id)
-        pass
+        status = requests.get(jobID[jID][0]+':'+jobID[jID][1]+'/stopapp', params={'app_id': aID, 'user_id':uID})
+        if status:
+            del jobID[jID]
 def main():
     
     consumer = KafkaConsumer('schedular',bootstrap_servers=['localhost:9092'],auto_offset_reset='latest',enable_auto_commit=True,value_deserializer=lambda x: json.loads(x.decode('utf-8')))
     for message in consumer:
         action = message.value["action"]
-        ID = message.value["jobID"]
-        appLoc = message.value["appLoc"]
-        configLoc = message.value["configLoc"]
-        _thread.start_new_thread(appExe,(action, ID, appLoc, configLoc,))
+        jID = message.value["jID"]
+        appPath = message.value["appPath"]
+        configPath = message.value["configPath"]
+        uID = message.value["uID"]
+        aID = message.value["aID"]
+        RAM = message.value["RAM"]
+        CPU = message.value["CPU"]
+        algoPath =message.value["algoPath"]
+        _thread.start_new_thread(appExe,(action, jID, aID, uID, RAM, CPU, appPath, algoPath, configPath))
 
 main()
