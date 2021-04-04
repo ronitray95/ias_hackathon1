@@ -15,13 +15,16 @@ class Application:
 
 
 class Server:
-    def __init__(self, id, ip, port, cpu, ram, num_apps):
+    def __init__(self, id, ip, port, active, health, num_apps, username, password):
         self.id = id
         self.ip = ip
         self.port = port
-        self.cpu = cpu
-        self.ram = ram
+        self.active = active
+        self.health = health
         self.num_apps = num_apps
+        self.username = username
+        self.password = password
 
 
 KAFKA_TOPIC_SERVER_LIST = 'server_list'
+KAFKA_TOPIC_NODE_SERVER_ASSIGN_LIST = 'node-server-assign'
