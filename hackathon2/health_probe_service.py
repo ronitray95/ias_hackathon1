@@ -36,4 +36,5 @@ def startProbe(index):
 for i in range(0, len(server_list)):
     start_new_thread(startProbe, (i,))
 
-input()
+while True:
+    pass
