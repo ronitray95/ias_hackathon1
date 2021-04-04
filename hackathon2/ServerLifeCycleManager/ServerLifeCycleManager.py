@@ -14,7 +14,7 @@ def read_server_json():
 def return_servers():
     servers=list()
     serversjson = read_server_json()
-    for i in serversjson["servers"]:
+    for i in serversjson:
         servers.append(i["ip"])
     #[127.0.0.1,127.0.0.1,127.0.0.1]
     return servers
@@ -29,8 +29,8 @@ def runtime_servers_datagather():
     for server in all_runtimeservers:
         #capacity[myjson["servers"][i]["id"]]=server
         #capacity["applications"]=myjson["servers"][i]["applications"]
-        _user=myjson["servers"][i]["username"]
-        _pass=myjson["servers"][i]["password"]
+        _user=myjson[i]["username"]
+        _pass=myjson[i]["password"]
         tmp_dict=dict()
 
         """#uncomment this code if you want to get perform metrics from run time server
@@ -51,11 +51,11 @@ def runtime_servers_datagather():
         tmp.append(psutil.virtual_memory().percent)
 
         tmp_dict["host"]=server
-        tmp_dict["port"]=myjson["servers"][i]["port"]
-        tmp_dict["applications"]=myjson["servers"][i]["applications"]
+        tmp_dict["port"]=myjson[i]["port"]
+        tmp_dict["applications"]=myjson[i]["applications"]
         tmp_dict["idle_cpu"]=float(tmp[0])
         tmp_dict["used_mem"]=float(tmp[1])
-        capacity[myjson["servers"][i]["id"]]=tmp_dict
+        capacity[myjson[i]["id"]]=tmp_dict
         i=i+1
     #print(capacity)
     #{'server1': {'host': '127.0.0.1', 'port': 5010, 'applications': 0, 'idle_cpu': 80.6, 'used_mem': 53.4}, 'server2': {'host': '127.0.0.1', 'port': 5011, 'applications': 0, 'idle_cpu': 80.6, 'used_mem': 53.4}, 'server3': {'host': '127.0.0.1', 'port': 5012, 'applications': 0, 'idle_cpu': 80.6, 'used_mem': 53.4}}
