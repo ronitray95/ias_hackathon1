@@ -25,7 +25,7 @@ with open('runtime_server.json') as f:
 app = Flask(__name__)
 #app.config["DEBUG"] = True
 producer = KafkaProducer(bootstrap_servers=[
-                         'localhost:9092'], value_serializer=lambda x: dumps(x).encode('utf-8'))
+    'localhost:9092'], value_serializer=lambda x: dumps(x).encode('utf-8'))
 
 
 def init_servers():
@@ -48,7 +48,7 @@ def createNodeServer():
     last_port += 1
     id = ''.join(random.choices(string.ascii_letters + string.digits, k=7))
     server_list.append({'id': id, 'ip': ip, 'port': last_port, 'active': 1,
-                        'health': 1, 'applications': 0, 'username': 'test', 'password': 'test'})
+                                            'health': 1, 'applications': 0, 'username': 'test', 'password': 'test'})
     server_load[id] = Server(id, ip, last_port, active=1, health=1,
                              applications=0, username='test', password='test')
 
@@ -103,7 +103,25 @@ def runApplication():
     apps_load.append(Application(app_id, user_id, sensor_list,
                                  ip, port, ram_req, cpu_req, app_path, algo_path))
     return {'msg': 'Success'}, 200
-    ## execute APP
+    # execute APP
+
+
+@app.route('/stopapp')
+def runApplication():
+    if request.method == 'POST':
+        return 'Not supported', 401
+    app_id = request.args.get('app_id')
+    user_id = request.args.get('user_id')
+    if app_id is None:
+        return {'msg': 'App ID is absent'}, 400
+    if user_id is None:
+        return {'msg': 'User ID is absent'}, 400
+    for i in range(0, len(apps_load)):
+        ap = apps_load[i]
+        if ap.app_id == app_id and ap.user_id == user_id:
+            apps_load.pop(i)
+            return {'msg': 'Success'}, 200
+	return {'msg': 'App ID not found'}, 401
 
 # if __name__ == '__main__':
 #     init_servers()

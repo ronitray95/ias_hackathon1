@@ -115,6 +115,6 @@ def running_runtime():
 #     return server_allocation_status
 
 
-if __name__ == "__main__":
-    #app.run()
-    running_runtime()
+# if __name__ == "__main__":
+#     app.run()
+#     running_runtime()
