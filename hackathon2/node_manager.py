@@ -19,6 +19,7 @@ from models import *
 
 server_load = {}
 apps_load = []
+apps_pid = []
 last_port = 0
 
 with open('runtime_server.json') as f:
@@ -105,7 +106,8 @@ def runApplication():
         return {'msg': 'Algo Path is absent'}, 400
     apps_load.append(Application(app_id, user_id, sensor_list,
                                  ip, port, ram_req, cpu_req, app_path, algo_path))
-    subprocess.run([sys.executable, app_path])
+    pid = subprocess.Popen([sys.executable, app_path])
+    apps_pid.append(pid)
     return {'msg': 'Success'}, 200
     # execute APP
 
@@ -123,7 +125,9 @@ def stopApplication():
     for i in range(0, len(apps_load)):
         ap = apps_load[i]
         if ap.app_id == app_id and ap.user_id == user_id:
+            apps_pid[i].terminate()
             apps_load.pop(i)
+            apps_pid.pop(i)
             return {'msg': 'Success'}, 200
     return {'msg': 'App ID not found'}, 401
 
