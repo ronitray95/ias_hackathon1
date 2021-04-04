@@ -8,6 +8,8 @@ import socket
 import json
 from flask import *
 from threading import *
+import subprocess
+import sys
 
 from time import sleep
 from json import dumps
@@ -40,6 +42,7 @@ def init_servers():
 
         start_new_thread(app.run, (x['ip'], x['port']))
     input()
+
 
 def createNodeServer():
     global last_port
@@ -102,6 +105,7 @@ def runApplication():
         return {'msg': 'Algo Path is absent'}, 400
     apps_load.append(Application(app_id, user_id, sensor_list,
                                  ip, port, ram_req, cpu_req, app_path, algo_path))
+    subprocess.run([sys.executable, app_path])
     return {'msg': 'Success'}, 200
     # execute APP
 

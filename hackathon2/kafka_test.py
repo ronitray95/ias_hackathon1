@@ -2,6 +2,8 @@
 
 from kafka import KafkaConsumer
 from json import loads
+import sys
+import subprocess
 
 from models import *
 
@@ -11,3 +13,5 @@ consumer = KafkaConsumer(KAFKA_TOPIC_SERVER_LIST, bootstrap_servers=[
 for message in consumer:
     message = message.value
     print(message)
+
+# subprocess.run([sys.executable, 'pawan/app1.py'])
