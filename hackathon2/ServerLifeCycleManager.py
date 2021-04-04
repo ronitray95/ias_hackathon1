@@ -50,19 +50,22 @@ def runtime_servers_datagather():
         _user = myjson[i]["username"]
         _pass = myjson[i]["password"]
         tmp_dict = dict()
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(hostname=server, username=_user, password=_pass)
-        _ftp = client.open_sftp()
-        _ftp.put("stats.py", "stats.py")
-        _ftp.close()
-        stdin, stdout, stderr = client.exec_command(
-            "/usr/bin/env python3 stats.py")
-        for line1 in stdout:
-            print(line1.strip())
-            tmp.append(line1.strip())
-        client.close()
+        # client = paramiko.SSHClient()
+        # client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # client.connect(hostname=server, username=_user, password=_pass)
+        # _ftp = client.open_sftp()
+        # _ftp.put("stats.py", "stats.py")
+        # _ftp.close()
+        # stdin, stdout, stderr = client.exec_command(
+        #     "/usr/bin/env python3 stats.py")
+        # for line1 in stdout:
+        #     print(line1.strip())
+        #     tmp.append(line1.strip())
+        # client.close()
 
+        tmp.append(psutil.cpu_times_percent(interval=1).idle)
+        tmp.append(psutil.virtual_memory().percent)
+        
         tmp_dict["host"] = server
         tmp_dict["port"] = myjson[i]["port"]
         tmp_dict["applications"] = myjson[i]["applications"]
@@ -87,6 +90,7 @@ def deploy_here_loadbalancer():
             return server[1]['host'], server[1]['port']
     if(create_new):
         nm.createNodeServer()
+        return deploy_here_loadbalancer()
         # print("#call ronit function to create server")
 
 
