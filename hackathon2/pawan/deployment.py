@@ -1,14 +1,28 @@
 import _thread
 import requests
-import json
+import json 
 from kafka import KafkaConsumer
+import comm_module as cm
+import ServerLifeCycleManager as sl 
+import threading
+import os
 
 jobID = {}
 
-def appExe(action, jID, aID, uID, RAM, CPU, appPath, algoPath, configPath):
-    global jobID
+def createConfig(sensorList, path):
+    with open(path+'/conf.json', 'w') as f:
+        data = {}
+        for i in sensorList:
+            i = i.split('_')
+            data[i[0]] = i[1]
+        f.write(json.dumps(data))
+    
 
+def appExe(action, jID, algoID, appID, userID, devID, RAM, CPU):
+    global jobID
+    sl.running_runtime()
     if action == 'start':
+
         ip =""
         port = ""
         consumer = KafkaConsumer('node-server-assign',bootstrap_servers=['localhost:9092'],auto_offset_reset='latest',enable_auto_commit=True,value_deserializer=lambda x: json.loads(x.decode('utf-8')))
@@ -16,30 +30,42 @@ def appExe(action, jID, aID, uID, RAM, CPU, appPath, algoPath, configPath):
             ip = message.value["host"]
             port = message.value["port"]
             break 
-        
+        print(ip,port)
+
+        print("IP/port assign to job {} is {}/{}".format(jID,ip,port))
         jobID[jID] = [ip, port]
-        status = requests.get(ip+':'+port+'/runapp', params={'app_id': aID, 'user_id':uID, 'ram_req':RAM, 'cpu_req':CPU, 'app_path':appPath, 'algo_path':algoPath, 'config_path':configPath})
+        path = os.path.abspath("Applications")
+        status = requests.get("http://"+ip+':'+port+'/runapp', params={'app_id':appID, 'user_id':userID, 'ram_req':RAM, 'cpu_req':CPU, 'algo_path':path+"/"+devID+"/"+appID, 'app_path':"/home/pawan/vscode/Hackathon/platform/deployment/Applications"+"/"+devID+"/"+appID+"/"+algoID+"/main.py"})
         if status:
-            #return status to schedular
-            pass
+            print("Application:{} Started".format(appID))
 
     else:
-        status = requests.get(jobID[jID][0]+':'+jobID[jID][1]+'/stopapp', params={'app_id': aID, 'user_id':uID})
+        status = requests.get("http://"+jobID[jID][0]+':'+jobID[jID][1]+'/stopapp', params={'app_id': appID, 'user_id':userID})
         if status:
             del jobID[jID]
-def main():
-    
-    consumer = KafkaConsumer('schedular',bootstrap_servers=['localhost:9092'],auto_offset_reset='latest',enable_auto_commit=True,value_deserializer=lambda x: json.loads(x.decode('utf-8')))
-    for message in consumer:
-        action = message.value["action"]
-        jID = message.value["jID"]
-        appPath = message.value["appPath"]
-        configPath = message.value["configPath"]
-        uID = message.value["uID"]
-        aID = message.value["aID"]
-        RAM = message.value["RAM"]
-        CPU = message.value["CPU"]
-        algoPath =message.value["algoPath"]
-        _thread.start_new_thread(appExe,(action, jID, aID, uID, RAM, CPU, appPath, algoPath, configPath))
+            print("Application:{} terminated".format(appID))
 
+def handler_fun(message):
+    action = message["action"] #start/stop
+    jID = message["jID"] 
+    appID = message["appID"] 
+    algoID = message["algoID"] 
+    sensorList = message["sensorList"] #["temp_t123","ac_a123"]
+    userID = message["userID"] 
+    devID = message["devID"] 
+    RAM = message["RAM"]
+    CPU = message["CPU"]
+    createConfig(sensorList, os.path.abspath('Applications')+"/"+devID+"/"+appID+"/"+algoID)
+    appExe(action, jID, algoID, appID, userID, devID, RAM, CPU)
+
+def main():
+
+    while(1):
+        #schObj=Scheduler(dataDc=None)
+        t2 = threading.Thread(target=cm.consume_msg("DP",handler_fun)) 
+        t2.start()
+
+    #appExe()
+    #cm.consume_msg('DP',handler_fun)
+    
 main()
