@@ -18,7 +18,7 @@ def createConfig(sensorList, path):
         f.write(json.dumps(data))
     
 
-def appExe(action, jID, algoID, appID, userID, devID, RAM, CPU):
+def appExe(action, jID, algoID, appID, userID, devID, RAM, CPU, path):
     global jobID
     sl.running_runtime()
     if action == 'start':
@@ -34,8 +34,7 @@ def appExe(action, jID, algoID, appID, userID, devID, RAM, CPU):
 
         print("IP/port assign to job {} is {}/{}".format(jID,ip,port))
         jobID[jID] = [ip, port]
-        path = os.path.abspath("Applications")
-        status = requests.get("http://"+ip+':'+port+'/runapp', params={'app_id':appID, 'user_id':userID, 'ram_req':RAM, 'cpu_req':CPU, 'algo_path':path+"/"+devID+"/"+appID, 'app_path':"/home/pawan/vscode/Hackathon/platform/deployment/Applications"+"/"+devID+"/"+appID+"/"+algoID+"/main.py"})
+        status = requests.get("http://"+ip+':'+port+'/runapp', params={'app_id':appID, 'user_id':userID, 'ram_req':RAM, 'cpu_req':CPU, 'algo_path':path+"/"+devID+"/"+appID, 'app_path':path+"/"+devID+"/"+appID+"/"+algoID+"/main.py"})
         if status:
             print("Application:{} Started".format(appID))
 
@@ -55,8 +54,10 @@ def handler_fun(message):
     devID = message["devID"] 
     RAM = message["RAM"]
     CPU = message["CPU"]
-    createConfig(sensorList, os.path.abspath('Applications')+"/"+devID+"/"+appID+"/"+algoID)
-    appExe(action, jID, algoID, appID, userID, devID, RAM, CPU)
+    path = os.path.abspath(__name__).split('/')
+    path = "/".join(path) + '/AppManager/Applications'
+    createConfig(sensorList, path +"/"+devID+"/"+appID+"/"+algoID)
+    appExe(action, jID, algoID, appID, userID, devID, RAM, CPU, path)
 
 def main():
 
